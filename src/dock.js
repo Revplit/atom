@@ -50,6 +50,7 @@ module.exports = class Dock {
     })
 
     this.state = {
+      ready: false,
       size: null,
       visible: false,
       shouldAnimate: false
@@ -76,7 +77,8 @@ module.exports = class Dock {
   // This method is called explicitly by the object which adds the Dock to the document.
   elementAttached () {
     // Re-render when the dock is attached to make sure we remeasure sizes defined in CSS.
-    etch.update(this)
+    this.setState({ready: true})
+    etch.updateSync(this)
   }
 
   getElement () {
@@ -171,6 +173,14 @@ module.exports = class Dock {
   }
 
   render () {
+    const atomDock = children => $('atom-dock', {className: this.location}, children)
+
+    // Because this code is included in the snapshot, we have to make sure we don't load
+    // DOM-touching classes (like PaneContainerElement) during initialization. The way we do this
+    // is by avoiding rendering the full contents until the element is attached, at which point we
+    // toggle the `ready` state and render the full dock contents.
+    if (!this.state.ready) return atomDock([])
+
     const innerElementClassList = ['atom-dock-inner', this.location]
     if (this.state.visible) innerElementClassList.push(VISIBLE_CLASS)
 
@@ -192,9 +202,7 @@ module.exports = class Dock {
     // ...but the content needs to maintain a constant size.
     const wrapperStyle = {[this.widthOrHeight]: `${size}px`}
 
-    return $(
-      'atom-dock',
-      {className: this.location},
+    return atomDock(
       $.div(
         {ref: 'innerElement', className: innerElementClassList.join(' ')},
         $.div(
