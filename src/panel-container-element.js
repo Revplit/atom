@@ -10,8 +10,10 @@ class PanelContainerElement extends HTMLElement {
 
   attachedCallback () {
     if (this.model.dock) {
+      
       this.model.dock.elementAttached()
-    }
+    } 
+    
   }
 
   initialize (model, viewRegistry) {
@@ -39,6 +41,7 @@ class PanelContainerElement extends HTMLElement {
       panelElement.classList.add('overlay', 'from-top')
     } else {
       panelElement.classList.add('tool-panel', `panel-${this.model.getLocation()}`)
+      
     }
 
     if (index >= this.childNodes.length) {
@@ -63,6 +66,7 @@ class PanelContainerElement extends HTMLElement {
           // closing is handled by core Atom commands and this already deactivates
           // on visibility changes
           escapeDeactivates: false
+          
         })
 
         this.subscriptions.add(panel.onDidChangeVisible(visible => {
@@ -70,6 +74,7 @@ class PanelContainerElement extends HTMLElement {
             modalFocusTrap.activate()
           } else {
             modalFocusTrap.deactivate()
+            
           }
         }))
       }
@@ -80,12 +85,14 @@ class PanelContainerElement extends HTMLElement {
     this.subscriptions.dispose()
     if (this.parentNode != null) {
       this.parentNode.removeChild(this)
+      
     }
   }
 
   hideAllPanelsExcept (excludedPanel) {
     for (let panel of this.model.getPanels()) {
       if (panel !== excludedPanel) { panel.hide() }
+      
     }
   }
 }
